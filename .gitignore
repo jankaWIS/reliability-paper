@@ -1,0 +1,14 @@
+# ignore all the VE files
+.idea/*
+venv/*
+
+# ignore all Jupyter ntb backups
+.ipynb_checkpoints/*.ipynb
+Code/.ipynb_checkpoints/*
+Figures/.ipynb_checkpoints/*.ipynb
+
+# ignore all compiler files
+Code/functions/__pycache__/*.pyc
+
+# ignore data
+Data/*

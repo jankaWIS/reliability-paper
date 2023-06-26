@@ -12,3 +12,5 @@ Code/functions/__pycache__/*.pyc
 
 # ignore data
 Data/*
+# but not readme
+!Data/README.md

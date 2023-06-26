@@ -3,9 +3,9 @@
 venv/*
 
 # ignore all Jupyter ntb backups
-.ipynb_checkpoints/*.ipynb
+.ipynb_checkpoints/*
 Code/.ipynb_checkpoints/*
-Figures/.ipynb_checkpoints/*.ipynb
+Figures/.ipynb_checkpoints/*
 
 # ignore all compiler files
 Code/functions/__pycache__/*.pyc

@@ -1,7 +1,7 @@
 # Data
 
 ## General notes
-Because of the high volume of all the raw data, the raw data is not part of this repository and is stored at 10.5281/zenodo.8117652. The codes and scripts expect it to be in this directory in `raw_CSV` folder, so please if you want to run them, download the raw data separately and put them to this folder.
+Because of the high volume of all the raw data, the raw data is not part of this repository and is stored at https://osf.io/cre2b/?view_only=a1f2e08ed30442da8099c1eb9597f947. The codes and scripts expect it to be in this directory in `raw_CSV` folder, so please if you want to run them, download the raw data separately and put them to this folder.
 
 Organisation:
 ```

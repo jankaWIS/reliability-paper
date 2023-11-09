@@ -503,6 +503,99 @@ def extract_data(df, total_n_trials, measure='correct', user_col='userID'):
     return all_trials_reshaped
 
 
+def calculate_reliability_between_two_groups(all_trials_arr_first, all_trials_arr_second, total_n_trials,
+                                             n_repeats=10 ** 3, step=None, update_rng_per_simulation=True, rng=None
+                                             ):
+    """
+    Calculate split-halves reliability between two groups. It can be either used as a regular split-halves code if the
+    two arrays provided are identical, then it goes from "step" until "total_n_trials//2" when computing reliability.
+    Or it can be used to sample the trials independently from two different arrays, computing thus a reliability between
+    two arrays, in which case, the sampling is done to their full extent.
+    It has been validated against the df approach and it is here to speed that up.
+
+    Parameters:
+    -----------
+    all_trials_arr_first : array, first array of trials, shape (n_samples, n_features).
+    all_trials_arr_second : array, second group of trials, shape (n_samples, n_features). If it is identical to the first
+                                    array, it will perform regular split-halves analysis.
+    total_n_trials : int, total number of trials in the first array or sum of the trials across both arrays. This
+                          determines step and the max number of trials that will be sampled -- it defines the n_trials_list.
+    n_repeats : int, optional, default=10**3, number of repetitions for reliability calculation.
+    step : int, optional, default=None, step size for sampling trials. If None, the step size is automatically
+                        determined based on total_n_trials.
+    update_rng_per_simulation : bool, optional, default=True, whether to update the random number generator per simulation.
+    rng : numpy.random.Generator or None, optional default=None, random number generator instance. If None, a new generator is created.
+
+    Returns:
+    --------
+    array_corr_trials_psychofit : numpy.ndarray, array of correlation coefficients between the two groups of trials for
+                                                all the simulations, shape (n_steps, n_repeats).
+    n_trials_list : numpy.ndarray, array of sampled trial counts, shape (n_steps,).
+    """
+
+    # check if the arrays are the same, create a flag
+    if np.array_equal(all_trials_arr_first, all_trials_arr_second, equal_nan=True):
+        same_arrays = True
+    else:
+        same_arrays = False
+
+    # define seeds, it is done this way to avoid different and inconsistent seeds if run in parallel
+    if rng is None:
+        rng = np.random.default_rng(0)
+
+    # define step
+    if step is None:
+        # have smaller steps for less trials
+        if total_n_trials <= 100:
+            step = 2
+        else:
+            step = 5
+
+    # create a n_trials_list
+    n_trials_list = np.arange(step, (total_n_trials + step) // 2, step)
+
+    # define arr
+    array_corr_trials_psychofit = np.zeros((len(n_trials_list), n_repeats))
+
+    # start the timer
+    start = time.time()
+
+    for j, n_trials in enumerate(n_trials_list):
+
+        # check that it's possible
+        assert n_trials <= total_n_trials // 2
+
+        # go over iterations
+        for i in range(n_repeats):
+
+            if update_rng_per_simulation:
+                # define state
+                rng = np.random.default_rng(i + j)
+
+            # choose trials to take. This allows passing two arrays (even of different size) and sampling the full extent.
+            # It is to prevent issues when total_n_trials would be twice the size of the array (when comparing
+            # two different arrays of the same size) or we would only sample half of it
+            random_idx = rng.choice(range(all_trials_arr_first.shape[1]), n_trials, replace=False)
+            # if the arrays are the same, take non-overlapping sample
+            if same_arrays:
+                random_idx2 = rng.choice(list(set(range(all_trials_arr_second.shape[1])) - set(random_idx)), n_trials,
+                                         replace=False)
+            # if not, sample it randomly, otherwise we might sample "more than half" elements from the first and have
+            # nothing for the second
+            else:
+                random_idx2 = rng.choice(range(all_trials_arr_second.shape[1]), n_trials, replace=False)
+
+            # save correlation
+            array_corr_trials_psychofit[j, i] = np.corrcoef(
+                np.nanmean(all_trials_arr_first[:, random_idx], axis=1),
+                np.nanmean(all_trials_arr_second[:, random_idx2], axis=1)
+            )[0, 1]
+
+    print(f"Process took: {time.time() - start:.2f} s which is {(time.time() - start) / 60:.2f} min.")
+
+    return array_corr_trials_psychofit, n_trials_list
+
+
 def count_consecutive(s):
     """
     Some inspiration for how to apply it on the df:

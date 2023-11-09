@@ -459,6 +459,50 @@ def get_statistics4many_trials(df, n_trials_list, sort_cols=["userID"], cols=["u
     return df_measures
 
 
+def extract_data(df, total_n_trials, measure='correct', user_col='userID'):
+    """
+    Extracts and reshapes data from a DataFrame to a numpy array based on unique user IDs and a specified measure.
+    This is used to speed up reliability calculations. It also executes a check that the values per subject are indeed
+    the same as in the df. To do that, it sorts the values by the "user_col" value, meaning it can possibly
+    reorder the trials.
+
+    The function first sorts the DataFrame based on the specified user column, then extracts the specified measure
+    for each user, reshapes the data into a 2D array, and ensures the integrity of the extracted data.
+
+    Parameters:
+    -----------
+    df: pd dataframe, DataFrame containing participants' data, expects at least 2 columns - trial outcomes per subject
+    total_n_trials : int, total number of trials per participant
+    measure : str, optional (default='correct'), the measure to extract from the DataFrame (trial outcomes). Default is 'correct'.
+    user_col : str, optional (default='userID'), the column in the DataFrame representing user IDs. Default is 'userID'.
+
+    Returns:
+    --------
+    2D numpy.ndarray containing reshaped data for each unique user. The shape of the array is (number of unique users, total_n_trials).
+
+    Raises:
+    ------
+    AssertionError if the extracted data and reshaped data are not equal for any user. Takes nans into account.
+
+    """
+
+    # sort values
+    df.sort_values(by=user_col, ignore_index=True, inplace=True)
+
+    # extract data
+    all_trials_reshaped = df.loc[:, measure].values.reshape(df[user_col].unique().size, total_n_trials)
+
+    # check that indeed they are the same
+    for i, user in enumerate(df[user_col].unique()):
+        if np.isnan(all_trials_reshaped[i]).any():
+            # deal with nans
+            assert np.allclose(df.loc[df[user_col] == user, measure].values, all_trials_reshaped[i], equal_nan=True)
+        else:
+            assert (df.loc[df[user_col] == user, measure].values == all_trials_reshaped[i]).all()
+
+    return all_trials_reshaped
+
+
 def count_consecutive(s):
     """
     Some inspiration for how to apply it on the df:

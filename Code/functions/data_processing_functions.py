@@ -75,12 +75,13 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
             # load and concat the datasets, condition the loading on the given subjects, see
             # https://stackoverflow.com/questions/28239529/conditional-row-read-of-csv-in-pandas
             # NOTE -- you have to AND the shared participants and the ones that you want to take from second Aus and F
+            # Add a separate column specifying the version loaded
             df_concat = pd.concat([
-                (pd.read_csv(os.path.join(path_results, 'CFMT-cleaned_data.csv'))[lambda x: x['userID'].isin(shared_participants)]),
-                (pd.read_csv(os.path.join(path_results, 'CFMT_Aus2-cleaned_data.csv'))[lambda x: x['userID'].isin(set(shared_participants) & take_aus2)]),
-                (pd.read_csv(os.path.join(path_results, 'CFMT_F2-cleaned_data.csv'))[lambda x: x['userID'].isin(set(shared_participants) & take_f2)]),
-                (pd.read_csv(os.path.join(path_results, 'CFMT_Aus-cleaned_data.csv'))[lambda x: x['userID'].isin(shared_participants)]),
-                (pd.read_csv(os.path.join(path_results, 'CFMT_F-cleaned_data.csv'))[lambda x: x['userID'].isin(shared_participants)]),
+                (pd.read_csv(os.path.join(path_results, 'CFMT-cleaned_data.csv'))[lambda x: x['userID'].isin(shared_participants)]).assign(form='original'),
+                (pd.read_csv(os.path.join(path_results, 'CFMT_Aus2-cleaned_data.csv'))[lambda x: x['userID'].isin(set(shared_participants) & take_aus2)]).assign(form='Aus2'),
+                (pd.read_csv(os.path.join(path_results, 'CFMT_F2-cleaned_data.csv'))[lambda x: x['userID'].isin(set(shared_participants) & take_f2)]).assign(form='F2'),
+                (pd.read_csv(os.path.join(path_results, 'CFMT_Aus-cleaned_data.csv'))[lambda x: x['userID'].isin(shared_participants)]).assign(form='Aus1'),
+                (pd.read_csv(os.path.join(path_results, 'CFMT_F-cleaned_data.csv'))[lambda x: x['userID'].isin(shared_participants)]).assign(form='F1'),
             ])
 
             # update list
@@ -93,6 +94,7 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
         elif t == "emotion_matching":
             # load the first set
             df_emotion_matching = pd.read_csv(os.path.join(path_results, "emotion_matching-cleaned_data.csv"))
+            df_emotion_matching["form"] = "original"
             df_emotion_matching["correct"] = df_emotion_matching["correct"].astype(float)
 
             # should be empty -- test if people don't have more than 1 entry
@@ -101,6 +103,7 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
 
             # load the second set
             df_emotion_matching_stand = pd.read_csv(os.path.join(path_results, "emotion_matching_rep-cleaned_data.csv"))
+            df_emotion_matching_stand["form"] = "repetition"
             df_emotion_matching_stand["correct"] = df_emotion_matching_stand["correct"].astype(float)
 
             # should be empty -- test if people don't have more than 1 entry
@@ -148,6 +151,7 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
         elif t == "emotion_labelling":
             # load the first set
             df_emotion_labelling = pd.read_csv(os.path.join(path_results, "emotion_labelling-cleaned_data.csv"))
+            df_emotion_labelling["form"] = "original"
             df_emotion_labelling["correct"] = df_emotion_labelling["correct"].astype(float)
 
             # should be empty -- test if people don't have more than 1 entry
@@ -155,6 +159,7 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
             print(df_emotion_labelling.userID.value_counts()[df_emotion_labelling.userID.value_counts() != 48])  #.keys()
 
             df_emotion_labelling_stand = pd.read_csv(os.path.join(path_results, "emotion_labelling_rep-cleaned_data.csv"))
+            df_emotion_labelling_stand["form"] = "repetition"
             df_emotion_labelling_stand["correct"] = df_emotion_labelling_stand["correct"].astype(float)
 
             # should be empty -- test if people don't have more than 1 entry
@@ -195,9 +200,9 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
             )
             print(f"Running total {len(shared_participants)} participants (out of {len(first_batch)} in first repetition).")
 
-            # load and concat the datasets
+            # load and concat the datasets, add label to know the form
             df_concat = pd.concat([
-                pd.read_csv(os.path.join(path_results, 'RISE-cleaned_data.csv')),
+                pd.read_csv(os.path.join(path_results, 'RISE-cleaned_data.csv')).assign(form='original'),
                 # pd.read_csv(os.path.join(path_results, 'RISE-cleaned_data_rep.csv')),
             ])
 
@@ -218,8 +223,8 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
 
             # load and concat the datasets
             df_concat = pd.concat([
-                pd.read_csv(os.path.join(path_results, 'nback-cleaned_data_day1.csv'), usecols=usecols),
-                pd.read_csv(os.path.join(path_results, 'nback-cleaned_data_day2.csv'), usecols=usecols),
+                pd.read_csv(os.path.join(path_results, 'nback-cleaned_data_day1.csv'), usecols=usecols).assign(form='original'),
+                pd.read_csv(os.path.join(path_results, 'nback-cleaned_data_day2.csv'), usecols=usecols).assign(form='repetition'),
             ])
 
             # update list
@@ -237,7 +242,7 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
 
             # load and concat the datasets
             df_concat = pd.concat([
-                pd.read_csv(os.path.join(path_results, 'Navon-cleaned_data.csv'), usecols=["userID", "correct_flt"]),
+                pd.read_csv(os.path.join(path_results, 'Navon-cleaned_data.csv'), usecols=["userID", "correct_flt"]).assign(form='original'),
             ])
             # rename col
             df_concat.rename(columns={"correct_flt": "correct"}, inplace=True)
@@ -253,7 +258,7 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
             print(f"Running total {len(shared_participants)} participants (out of {len(first_batch)} in first repetition).")
 
             # load and concat the datasets
-            df_concat = pd.read_csv(os.path.join(path_results, f'{t}-cleaned_data.csv'))
+            df_concat = pd.read_csv(os.path.join(path_results, f'{t}-cleaned_data.csv')).assign(form=t)
 
             # update list
             check_used_tasks.remove(f"{t}-cleaned_data.csv")
@@ -271,8 +276,8 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
             if t == "FMP":
                 # load and concat the datasets
                 df_concat = pd.concat([
-                    pd.read_csv(os.path.join(path_results, f'FMP-cleaned_data.csv'), usecols=["userID", "task", "difficulty", "correct_flt"]),
-                    pd.read_csv(os.path.join(path_results, f'FMP-cleaned_data_rep.csv'), usecols=["userID", "task", "difficulty", "correct_flt"]),
+                    pd.read_csv(os.path.join(path_results, f'FMP-cleaned_data.csv'), usecols=["userID", "task", "difficulty", "correct_flt"]).assign(form='original'),
+                    pd.read_csv(os.path.join(path_results, f'FMP-cleaned_data_rep.csv'), usecols=["userID", "task", "difficulty", "correct_flt"]).assign(form='repetition'),
                 ])
                 # rename column to be consistent
                 df_concat.rename(columns={"correct_flt": "correct", "task": "memory_load"}, inplace=True)
@@ -289,32 +294,32 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
 
                 # load and concat the datasets
                 df_concat = pd.concat([
-                    pd.read_csv(os.path.join(path_results, 'GFMT-cleaned_data.csv')),
-                    pd.read_csv(os.path.join(path_results, 'GFMT-cleaned_data_rep.csv')),
+                    pd.read_csv(os.path.join(path_results, 'GFMT-cleaned_data.csv')).assign(form='original'),
+                    pd.read_csv(os.path.join(path_results, 'GFMT-cleaned_data_rep.csv')).assign(form='repetition'),
                 ])
 
                 # take only the full data
                 df_concat = df_concat[(df_concat["FaceStim"].isin(shared_target)) & (
                     df_concat["userID"].isin(shared_participants))].reset_index(drop=True)
                 # take only columns of interest
-                df_concat = df_concat[usecols].copy()
+                df_concat = df_concat[usecols+["form"]].copy()
 
             elif t == "PGNG":
                 # load and concat the datasets
                 df_concat = pd.concat([
-                    pd.read_csv(os.path.join(path_results, 'PGNG-cleaned_data.csv')),
-                    pd.read_csv(os.path.join(path_results, 'PGNG-cleaned_data_rep.csv')),
+                    pd.read_csv(os.path.join(path_results, 'PGNG-cleaned_data.csv')).assign(form='original'),
+                    pd.read_csv(os.path.join(path_results, 'PGNG-cleaned_data_rep.csv')).assign(form='repetition'),
                 ])
                 # drop the first block
                 df_concat = df_concat[df_concat["block"] != 1]
                 # take only columns of interest
-                df_concat = df_concat[usecols].copy()
+                df_concat = df_concat[usecols+["form"]].copy()
 
             else:
                 # load and concat the datasets
                 df_concat = pd.concat([
-                    pd.read_csv(os.path.join(path_results, f'{t}-cleaned_data.csv'), usecols=usecols),
-                    pd.read_csv(os.path.join(path_results, f'{t}-cleaned_data_rep.csv'), usecols=usecols),
+                    pd.read_csv(os.path.join(path_results, f'{t}-cleaned_data.csv'), usecols=usecols).assign(form='original'),
+                    pd.read_csv(os.path.join(path_results, f'{t}-cleaned_data_rep.csv'), usecols=usecols).assign(form='repetition'),
                 ])
 
             # update done tasks
@@ -322,7 +327,8 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
             check_used_tasks.remove(f"{t}-cleaned_data_rep.csv")
 
         ### Process
-
+        # add form to usecols
+        usecols += ["form"]
         # take only the full data
         df_concat = df_concat.loc[df_concat["userID"].isin(shared_participants), usecols].reset_index(drop=True)
         # add a label

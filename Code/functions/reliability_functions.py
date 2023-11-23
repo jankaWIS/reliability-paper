@@ -4,6 +4,7 @@ import warnings
 
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from scipy import special
 
 ### Functions for fitting

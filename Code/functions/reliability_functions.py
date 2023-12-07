@@ -473,9 +473,9 @@ def extract_data(df, total_n_trials, measure='correct', user_col='userID'):
     Parameters:
     -----------
     df: pd dataframe, DataFrame containing participants' data, expects at least 2 columns - trial outcomes per subject
-    total_n_trials : int, total number of trials per participant
-    measure : str, optional (default='correct'), the measure to extract from the DataFrame (trial outcomes). Default is 'correct'.
-    user_col : str, optional (default='userID'), the column in the DataFrame representing user IDs. Default is 'userID'.
+    total_n_trials: int, total number of trials per participant
+    measure: str, optional (default='correct'), the measure to extract from the DataFrame (trial outcomes). Default is 'correct'.
+    user_col: str, optional (default='userID'), the column in the DataFrame representing user IDs. Default is 'userID'.
 
     Returns:
     --------
@@ -516,22 +516,22 @@ def calculate_reliability_between_two_groups(all_trials_arr_first, all_trials_ar
 
     Parameters:
     -----------
-    all_trials_arr_first : array, first array of trials, shape (n_samples, n_features).
-    all_trials_arr_second : array, second group of trials, shape (n_samples, n_features). If it is identical to the first
+    all_trials_arr_first: array, first array of trials, shape (n_samples, n_features).
+    all_trials_arr_second: array, second group of trials, shape (n_samples, n_features). If it is identical to the first
                                     array, it will perform regular split-halves analysis.
-    total_n_trials : int, total number of trials in the first array or sum of the trials across both arrays. This
+    total_n_trials: int, total number of trials in the first array or sum of the trials across both arrays. This
                           determines step and the max number of trials that will be sampled -- it defines the n_trials_list.
-    n_repeats : int, optional, default=10**3, number of repetitions for reliability calculation.
-    step : int, optional, default=None, step size for sampling trials. If None, the step size is automatically
+    n_repeats: int, optional, default=10**3, number of repetitions for reliability calculation.
+    step: int, optional, default=None, step size for sampling trials. If None, the step size is automatically
                         determined based on total_n_trials.
-    update_rng_per_simulation : bool, optional, default=True, whether to update the random number generator per simulation.
-    rng : numpy.random.Generator or None, optional default=None, random number generator instance. If None, a new generator is created.
+    update_rng_per_simulation: bool, optional, default=True, whether to update the random number generator per simulation.
+    rng: numpy.random.Generator or None, optional default=None, random number generator instance. If None, a new generator is created.
 
     Returns:
     --------
-    array_corr_trials_psychofit : numpy.ndarray, array of correlation coefficients between the two groups of trials for
+    array_corr_trials_psychofit: numpy.ndarray, array of correlation coefficients between the two groups of trials for
                                                 all the simulations, shape (n_steps, n_repeats).
-    n_trials_list : numpy.ndarray, array of sampled trial counts, shape (n_steps,).
+    n_trials_list: numpy.ndarray, array of sampled trial counts, shape (n_steps,).
     """
 
     # check if the arrays are the same, create a flag

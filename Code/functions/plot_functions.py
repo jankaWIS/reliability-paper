@@ -284,3 +284,127 @@ def plot_sampling_curves(n_trials_list, reliability_arr_mu, reliability_arr_sd, 
                     reliability_arr_mu+reliability_arr_sd,
                     color=color, alpha=alpha, label=label
                    )
+
+
+def calculate_reliability_between_two_groups_scatterplots(all_trials_arr_first, all_trials_arr_second, total_n_trials,
+                                                          n_repeats=4, step=None, update_rng_per_simulation=True,
+                                                          rng=None, test='', axs=None,
+                                                          ):
+    """
+    Calculate split-halves reliability between two groups and plot scatterplots of it.
+    It is the same code as calculate_reliability_between_two_groups. It can be either used as a regular split-halves code
+    if the two arrays provided are identical, then it goes from "step" until "total_n_trials//2" when computing reliability.
+    Or it can be used to sample the trials independently from two different arrays, computing thus a reliability between
+    two arrays, in which case, the sampling is done to their full extent.
+    It has been validated against the df approach and it is here to speed that up.
+
+    Parameters:
+    -----------
+    all_trials_arr_first: array, first array of trials, shape (n_samples, n_features).
+    all_trials_arr_second: array, second group of trials, shape (n_samples, n_features). If it is identical to the first
+                                    array, it will perform regular split-halves analysis.
+    total_n_trials: int, total number of trials in the first array or sum of the trials across both arrays. This
+                          determines step and the max number of trials that will be sampled -- it defines the n_trials_list.
+    n_repeats: int, optional, default=4, number of repetitions for reliability calculation.
+    step: int, optional, default=None, step size for sampling trials. If None, the step size is automatically
+                        determined based on total_n_trials.
+    update_rng_per_simulation: bool, optional, default=True, whether to update the random number generator per simulation.
+    rng: numpy.random.Generator or None, optional default=None, random number generator instance. If None, a new generator is created.
+    test: str, default '', name of the task that will be in the title of the plot
+    axs: matplotlib axis/axes or None, default None. If none provided, it will create a figure with n_repeat columns and
+        len(n_trials_list) rows showing the scatterplots. If provided, it will plot these scatters on that axis
+
+    Returns:
+    --------
+    first and second array of scores per subjects -- these arrays would be then correlated and these arrays are plotted.
+    It is from the last iteration, i.e. the highest L.
+    Array of L (n_trials_list)
+    """
+
+    # check if the arrays are the same, create a flag
+    if np.array_equal(all_trials_arr_first, all_trials_arr_second, equal_nan=True):
+        same_arrays = True
+    else:
+        same_arrays = False
+
+    # define seeds, it is done this way to avoid different and inconsistent seeds if run in parallel
+    if rng is None:
+        rng = np.random.default_rng(0)
+
+    # define step
+    if step is None:
+        # have smaller steps for less trials
+        if total_n_trials <= 100:
+            step = 2
+        else:
+            step = 5
+
+    # create a n_trials_list
+    n_trials_list = np.arange(step, (total_n_trials + step) // 2, step)
+
+    # define the plot if not provided with axes
+    if axs is None:
+        fig, axs = plt.subplots(len(n_trials_list), n_repeats, figsize=(3*n_repeats+1, 2 * len(n_trials_list)))
+        show_plt = True
+    else:
+        show_plt = False
+
+    for j, n_trials in enumerate(n_trials_list):
+
+        # check that it's possible
+        assert n_trials <= total_n_trials // 2
+
+        # go over iterations
+        for i in range(n_repeats):
+
+            if update_rng_per_simulation:
+                # define state
+                rng = np.random.default_rng(i + j)
+
+            # choose trials to take, this could be done differently by sampling completely independently from the two
+            # arrays but this allows for passing the same array twice and still managing with the non-overlapping
+            # samples
+            # random_idx = rng.choice(range(total_n_trials), n_trials, replace=False)
+            # random_idx2 = rng.choice(list(set(range(total_n_trials))-set(random_idx)), n_trials, replace=False)
+            # This allows passing two arrays (even of different size) and sampling the full extent.
+            # It is to prevent issues when total_n_trials would be twice the size of the array (when comparing
+            # two different arrays of the same size) or we would only sample half of it
+            random_idx = rng.choice(range(all_trials_arr_first.shape[1]), n_trials, replace=False)
+            # if the arrays are the same, take non-overlapping sample
+            if same_arrays:
+                random_idx2 = rng.choice(list(set(range(all_trials_arr_second.shape[1])) - set(random_idx)), n_trials,
+                                         replace=False)
+            # if not, sample it randomly, otherwise we might sample "more than half" elements from the first and have nothing for the second
+            else:
+                random_idx2 = rng.choice(range(all_trials_arr_second.shape[1]), n_trials, replace=False)
+
+            # calculate the mean
+            x = np.nanmean(all_trials_arr_first[:, random_idx], axis=1)
+            y = np.nanmean(all_trials_arr_second[:, random_idx2], axis=1)
+            # deal with multiple axes
+            if n_repeats == 1 and len(n_trials_list) == 1:
+                # it will be only one axis
+                axs_tmp = axs
+            elif n_repeats > 1 and len(n_trials_list) > 1:
+                # it will be a double axis
+                axs_tmp = axs[j, i]
+            else:
+                # trick
+                axs_tmp = axs[max(j, i)]
+            axs_tmp.scatter(x, y)
+            label_correlation(x, y, axs_tmp, xy=(.05, .75))
+
+        if n_repeats == 1 and len(n_trials_list) == 1:
+            axs.set_ylabel(f'Sampled L={n_trials}')
+        elif len(n_trials_list)>1:
+            axs[j, 0].set_ylabel(f'Sampled L={n_trials}')
+        else:
+            axs[0].set_ylabel(f'Sampled L={n_trials}')
+
+    if show_plt:
+        plt.suptitle(f'{test} accuracy random samples', y=0.9)
+        plt.show()
+    else:
+        axs_tmp.set_title(f'{test} accuracy random samples', y=0.9)
+
+    return x, y, n_trials_list

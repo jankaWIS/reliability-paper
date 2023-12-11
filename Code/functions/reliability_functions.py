@@ -488,7 +488,7 @@ def extract_data(df, total_n_trials, measure='correct', user_col='userID'):
     """
 
     # sort values
-    df.sort_values(by=user_col, ignore_index=True, inplace=True)
+    df.sort_values(by=user_col, ignore_index=True, inplace=True, kind='stable')
 
     # extract data
     all_trials_reshaped = df.loc[:, measure].values.reshape(df[user_col].unique().size, total_n_trials)

@@ -107,6 +107,30 @@ def bin_samples_rand4(rng, N, total_n_trials, mu_throws, ravel=True):
     return (rng.random(size=(N, total_n_trials)) <= mu_throws[:, None]).astype(np.uint8)
 
 
+def get_true_correlation(r_xy_prime, r_xx_prime, r_yy_prime):
+    """
+    Calculate the true correlation/reliability coefficient between two variables based on their partial correlations.
+    This is an implementation of the attenuation correction, with the formula: Rx'y' = Rxy * sqrt(Rx'x' * Ry'y'), see
+    the following articles by Spearman:
+    Spearman, C. Correlation Calculated from Faulty Data. Br. J. Psychol. 1904-1920 3, 271–295 (1910).
+    Spearman, C. The Proof and Measurement of Association between Two Things. Am. J. Psychol. 15, 72–101 (1904).
+    Spearman, C. Demonstration of Formulæ for True Measurement of Correlation. Am. J. Psychol. 18, 161–169 (1907).
+
+    Parameters
+    ----------
+    r_xy_prime: float or np array, observed correlation/reliability between variables X and Y
+    r_xx_prime: float or np array, observed correlation/reliability of variable X with itself
+    r_yy_prime: float or np array, observed correlation/reliability of variable Y with itself
+
+    Returns
+    -------
+    The true correlation coefficient (float or array) between variables X and Y that is expected when the sample size
+    goes to infinity.
+    """
+
+    return r_xy_prime/np.sqrt(r_xx_prime*r_yy_prime)
+
+
 ### Functions for reliability and analysis/preprocessing
 
 def create_random_reliability_curve(total_n_trials=150, N=20, n_repeats=10 ** 3, step=None,

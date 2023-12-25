@@ -48,6 +48,8 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
             usecols = ["userID", "level", "correct_response", "response_type", "correct"]
         elif t == "PIM_MC":
             usecols = ["userID", "hobby", "vice", "code_name", "country"]
+        elif t == "PIM_recog":
+            usecols = ["userID", "correct", "seen", "sender"]
         elif t == "SCAP":
             usecols = ['userID', 'correct', 'set_size']
         else:
@@ -355,6 +357,14 @@ def process_and_concatenate_all_tasks(task_names, task_files, path_results):
             y = None
 
         else:
+            if t == "PIM_recog":
+                # convert correct
+                df_concat["correct"] = df_concat["correct"].astype(float)
+                df_concat["seen"] = df_concat["seen"].str.lower()
+                # get only the correct trials
+                df_concat = df_concat[df_concat["sender"] == "Recognize"].sort_values(by=["userID"],
+                                                                                kind='stable').reset_index(drop=True)
+
             # add results per subject
             tmp = df_concat.convert_dtypes().groupby(["userID"]).sum().correct.reset_index()
             # first do the wide

@@ -306,6 +306,36 @@ def split_dataframes_faster_chunks(df, total_n_trials, n_trials, N, n_levels=1, 
     return df_first, df_second
 
 
+def sample_df_trials(df, total_n_trials, n_trials, N, rng=None):
+    """
+    Similar function to split_dataframes_faster, it randomly chooses n_trials from total_n_trials of a dataframe/array.
+
+    Parameters
+    ----------
+    df: pandas df or numpy array, dataframe to choose n_trials from. Expects N x n_trials rows
+    total_n_trials: int, total number of trials per participant, per N; how many trials to choose from
+    n_trials: int, how many trials to choose per participant
+    N: int, total number of participants
+    rng: random state, default np.random.default_rng(0)
+
+    Returns
+    -------
+    Indexed dataframe
+
+    """
+    if rng is None:
+        rng = np.random.default_rng(0)
+    random_idx = rng.choice(total_n_trials, n_trials, replace=False)
+    # create boolean indexing, select those indices
+    half_A = np.zeros(total_n_trials)
+    half_A[random_idx] = 1
+
+    # create boolean indexing for the entire array
+    A_indexes = np.tile(half_A, N).astype(bool)
+
+    return df[A_indexes].copy()
+
+
 def check_df_get_numbers(df, N, col='userID'):
     """
     Returns the maximum number of trials.

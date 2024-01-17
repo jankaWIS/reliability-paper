@@ -5,6 +5,7 @@ venv/*
 # ignore all Jupyter ntb backups
 .ipynb_checkpoints/*
 Code/.ipynb_checkpoints/*
+Code/simulate_reliability_range_ntbs/.ipynb_checkpoints/*
 Figures/.ipynb_checkpoints/*
 
 # ignore all compiler files

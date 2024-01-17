@@ -4,9 +4,9 @@
  The range is obtained by running 1000 splits (simulations) and it is run on the real dataset (not using synthetic data) for the largest possible $L$. This $L$ is usually equal to half of the total number of trials in one form as we need to perform split-halves reliability calculation on non-overlapping sets of data. This limits the maximum $L$ for this analysis to the half of the total number of trials. As we use data from two days (= from two forms), we can split them still randomly into two `pseudo-days` and still obtain one full form for each for the analysis.
  
  ## The calculation
- We use the attenuation correction formula first proposed by Spearman^{1,2,3} in the following form:
+ We use the attenuation correction formula first proposed by Spearman<sup>1,2,3</sup> in the following form:
 
-$$ R_{x'y'} = R_{xy} \sqrt(R_{x'x'} * R_{y'y'}),  $$
+$$ R_{x'y'} = R_{xy} \sqrt{R_{x'x'} \cdot R_{y'y'}},  $$
 
 where $R_{x'y'} $ is the observed correlation/reliability between variables X and Y calculated as split-halves reliability of day 1 vs day 2;  and R_{x'x'}, resp. R_{y'y'} ,  is the observed correlation/reliability of variable $X$, resp. $Y$ with itself, i.e. regular split-halves reliability that was calculated and used throughout the article.
 
@@ -15,6 +15,8 @@ The general idea and approach is the same as for the split-halves reliability wi
 
 
 ## Literature
-^{1} Spearman, C. Correlation Calculated from Faulty Data. Br. J. Psychol. 1904-1920 3, 271–295 (1910).
-^{2} Spearman, C. The Proof and Measurement of Association between Two Things. Am. J. Psychol. 15, 72–101 (1904).
-^{3}  Spearman, C. Demonstration of Formulæ for True Measurement of Correlation. Am. J. Psychol. 18, 161–169 (1907).
+<sup>1</sup> Spearman, C. Correlation Calculated from Faulty Data. Br. J. Psychol. 1904-1920 3, 271–295 (1910).
+
+<sup>2</sup> Spearman, C. The Proof and Measurement of Association between Two Things. Am. J. Psychol. 15, 72–101 (1904).
+
+<sup>3</sup>  Spearman, C. Demonstration of Formulæ for True Measurement of Correlation. Am. J. Psychol. 18, 161–169 (1907).

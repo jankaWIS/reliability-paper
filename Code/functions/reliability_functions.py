@@ -559,8 +559,8 @@ def extract_data(df, total_n_trials, measure='correct', user_col='userID'):
 
 
 def calculate_reliability_between_two_groups(all_trials_arr_first, all_trials_arr_second, total_n_trials,
-                                             n_repeats=10 ** 3, step=None, update_rng_per_simulation=True, rng=None
-                                             ):
+                                             n_repeats=10 ** 3, step=None, update_rng_per_simulation=True, rng=None,
+                                             sampling='random'):
     """
     Calculate split-halves reliability between two groups. It can be either used as a regular split-halves code if the
     two arrays provided are identical, then it goes from "step" until "total_n_trials//2" when computing reliability.
@@ -580,6 +580,10 @@ def calculate_reliability_between_two_groups(all_trials_arr_first, all_trials_ar
                         determined based on total_n_trials.
     update_rng_per_simulation: bool, optional, default=True, whether to update the random number generator per simulation.
     rng: numpy.random.Generator or None, optional default=None, random number generator instance. If None, a new generator is created.
+    sampling: string, default 'random', possible 'same', 'complement', 'random', how to sample trials when 2 different arrays are given
+    * 'same' takes the exact same trials (by order) from the two days (e.g. first half).
+    * 'complement' takes the complementary trials (by order), e.g. first half from day 1 and second half from day 2
+    * 'random' takes trials randomly (currently the options)
 
     Returns:
     --------
@@ -593,6 +597,10 @@ def calculate_reliability_between_two_groups(all_trials_arr_first, all_trials_ar
         same_arrays = True
     else:
         same_arrays = False
+        print(f'Taking {sampling} trials from the two different arrays.')
+        # make sure to adjust max # trials for complement
+        if sampling == 'complement':
+            total_n_trials //= 2
 
     # define seeds, it is done this way to avoid different and inconsistent seeds if run in parallel
     if rng is None:
@@ -638,7 +646,15 @@ def calculate_reliability_between_two_groups(all_trials_arr_first, all_trials_ar
             # if not, sample it randomly, otherwise we might sample "more than half" elements from the first and have
             # nothing for the second
             else:
-                random_idx2 = rng.choice(range(all_trials_arr_second.shape[1]), n_trials, replace=False)
+                if sampling == 'random':
+                    random_idx2 = rng.choice(range(all_trials_arr_second.shape[1]), n_trials, replace=False)
+                elif sampling == 'same':
+                    random_idx2 = random_idx
+                elif sampling == 'complement':
+                    random_idx2 = rng.choice(list(set(range(all_trials_arr_second.shape[1])) - set(random_idx)), n_trials,
+                                             replace=False)
+                else:
+                    raise ValueError(f'Provided sampling method is not defined: {sampling}.')
 
             # save correlation
             array_corr_trials_psychofit[j, i] = np.corrcoef(

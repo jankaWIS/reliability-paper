@@ -560,7 +560,7 @@ def extract_data(df, total_n_trials, measure='correct', user_col='userID'):
 
 def calculate_reliability_between_two_groups(all_trials_arr_first, all_trials_arr_second, total_n_trials,
                                              n_repeats=10 ** 3, step=None, update_rng_per_simulation=True, rng=None,
-                                             sampling='random'):
+                                             sampling='random', verbose=True):
     """
     Calculate split-halves reliability between two groups. It can be either used as a regular split-halves code if the
     two arrays provided are identical, then it goes from "step" until "total_n_trials//2" when computing reliability.
@@ -581,9 +581,10 @@ def calculate_reliability_between_two_groups(all_trials_arr_first, all_trials_ar
     update_rng_per_simulation: bool, optional, default=True, whether to update the random number generator per simulation.
     rng: numpy.random.Generator or None, optional default=None, random number generator instance. If None, a new generator is created.
     sampling: string, default 'random', possible 'same', 'complement', 'random', how to sample trials when 2 different arrays are given
-    * 'same' takes the exact same trials (by order) from the two days (e.g. first half).
-    * 'complement' takes the complementary trials (by order), e.g. first half from day 1 and second half from day 2
-    * 'random' takes trials randomly (currently the options)
+        * 'same' takes the exact same trials (by order) from the two days (e.g. first half).
+        * 'complement' takes the complementary trials (by order), e.g. first half from day 1 and second half from day 2
+        * 'random' takes trials randomly (currently the options)
+    verbose: bool, default True, whether to print comments and duration of calculation
 
     Returns:
     --------
@@ -597,7 +598,8 @@ def calculate_reliability_between_two_groups(all_trials_arr_first, all_trials_ar
         same_arrays = True
     else:
         same_arrays = False
-        print(f'Taking {sampling} trials from the two different arrays.')
+        if verbose:
+            print(f'Taking {sampling} trials from the two different arrays.')
         # make sure to adjust max # trials for complement
         if sampling == 'complement':
             total_n_trials //= 2
@@ -662,7 +664,8 @@ def calculate_reliability_between_two_groups(all_trials_arr_first, all_trials_ar
                 np.nanmean(all_trials_arr_second[:, random_idx2], axis=1)
             )[0, 1]
 
-    print(f"Process took: {time.time() - start:.2f} s which is {(time.time() - start) / 60:.2f} min.")
+    if verbose:
+        print(f"Process took: {time.time() - start:.2f} s which is {(time.time() - start) / 60:.2f} min.")
 
     return array_corr_trials_psychofit, n_trials_list
 

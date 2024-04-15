@@ -5,9 +5,10 @@ Because of the high volume of all the raw data, the raw data is not part of this
 
 Organisation:
 ```
-├── cleaned_CSV           <- Cleaned and processed data for all tasks.
+├── cleaned_CSV           <- Cleaned and processed data for all tasks except for longitudinal FMP.
+├── cleaned_CSV_FMP       <-  Cleaned and processed data for longitudinal FMP.
 ├── demographic_data      <- Demographics for all subjects with at least one task (as provided by Prolific).
-├── raw_CSV               <- Raw data for all tasks.
+├── raw_CSV               <- Raw data for all tasks (except for longitudinal FMP).
 ├── results
     ├── curve_fits                      <- Contains reliability curves data for each task.
         ├── compare_fitting_methods     <- Contains simulation data for different fit methods.

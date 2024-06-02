@@ -1,5 +1,5 @@
 <!-- #region -->
-# *Putting cognitive tasks on trial: A measure of reliability convergence*: Codes and data to the article, FAQ about the web tool
+# *A measure of reliability convergence to select and optimize cognitive tasks for individual differences research*: Codes and data to the article, FAQ about the web tool
 
 
 

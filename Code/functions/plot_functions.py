@@ -234,7 +234,7 @@ def plot_RC_distributions_line(corr_distribution_array, df_neeed_trials, max_rel
     axs[1].errorbar(x_rel, y_corr, yerr=np.nanstd(corr_distribution_array, axis=1), capsize=2, c='gray')
     axs[1].scatter(x_rel, y_corr, c='b', zorder=4)
 
-    axs[1].set_xlabel('Reliabilty R')
+    axs[1].set_xlabel('Reliability, R')
     axs[1].set_ylabel('Mean Correlation')
 
     for ax in axs.flatten():

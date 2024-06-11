@@ -12,6 +12,14 @@
 
 Jan Kadlec, Catherine Walsh, Uri Sadé, Ariel Amir, Jesse Rissman, Michal Ramot, bioRxiv 2023.07.03.547563; doi: [https://doi.org/10.1101/2023.07.03.547563](https://doi.org/10.1101/2023.07.03.547563).
 
+---
+#### Associated ZENODO repository
+
+
+[![DOI](https://zenodo.org/badge/658647441.svg)](https://zenodo.org/doi/10.5281/zenodo.11564064)
+
+
+
 ## Author
 
 

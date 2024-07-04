@@ -4,6 +4,7 @@
 
 
 ### Citation
+Kadlec, J., Walsh, C.R., Sadé, U. et al. A measure of reliability convergence to select and optimize cognitive tasks for individual differences research. Commun Psychol 2, 64 (2024). [https://doi.org/10.1038/s44271-024-00114-4](https://doi.org/10.1038/s44271-024-00114-4)
 
 
 ---
